@@ -1,0 +1,8 @@
+#Ignore git
+.git
+
+.gitignore
+
+README.md
+
+.vscode
