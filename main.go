@@ -5,11 +5,19 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/jacob4649/cactus-of-things-backend/cactus-of-things-backend/sensor"
 )
 
 func main() {
 	log.Print("starting server...")
 	http.HandleFunc("/", handler)
+
+	datastore := sensor.SensorDatastore{ProjectID: "cactus-of-things-backend"}
+	readingGetter, readingSetter := sensor.GetHandlers(&datastore)
+
+	http.HandleFunc("/readings/store", readingSetter)
+	http.HandleFunc("/readings/{start}/to/{end}", readingGetter)
 
 	// Determine port for HTTP service.
 	port := os.Getenv("PORT")
