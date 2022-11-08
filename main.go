@@ -13,7 +13,7 @@ func main() {
 	log.Print("starting server...")
 	http.HandleFunc("/", handler)
 
-	datastore := sensor.SensorDatastore{ProjectID: "cactus-of-things-backend"}
+	datastore := sensor.SensorDatastore{ProjectID: "cactus-of-things"}
 	readingGetter, readingSetter := sensor.GetHandlers(&datastore)
 
 	http.HandleFunc("/readings/store", readingSetter)
