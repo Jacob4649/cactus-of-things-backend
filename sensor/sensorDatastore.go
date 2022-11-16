@@ -28,7 +28,7 @@ type SensorDatastoreReading struct {
 	Moisture float64 `datastore:"moisture,noindex"`
 
 	// The light level of this reading
-	Light float64 `datastore:light,noindex`
+	Light float64 `datastore:"light,noindex"`
 
 	// The expiry date for this reading
 	Expiry time.Time `datastore:"expiry,noindex"`
