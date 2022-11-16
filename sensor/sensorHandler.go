@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 // Handler function
@@ -13,7 +14,35 @@ type Handler func(http.ResponseWriter, *http.Request)
 func GetHandlers(storer SensorStorer) (getter Handler, setter Handler) {
 
 	getHandler := func (w http.ResponseWriter, r *http.Request)  {
+		parameters := r.URL.Query()
 		
+		startString, endString := parameters.Get("start"), parameters.Get("end")
+
+		if startString == "" || endString == "" {
+			msg := "Must specify start and end query strings in URL parameters"
+			http.Error(w, msg, http.StatusBadRequest)
+			return
+		}
+
+		start, startErr := time.Parse(time.RFC3339, startString)
+
+		end, endErr := time.Parse(time.RFC3339, endString)
+
+		if startErr != nil || endErr != nil {
+			msg := "Start and end query parameters must be according to RFC3339"
+			http.Error(w, msg, http.StatusBadRequest)
+			return
+		}
+
+		readings := storer.GetReadings(start, end)
+
+		if readings == nil {
+			msg := "Unable to read from database"
+			http.Error(w, msg, http.StatusInternalServerError)
+			return
+		}
+
+		json.NewEncoder(w).Encode(readings)
 	}
 
 	setHandler := func (w http.ResponseWriter, r *http.Request)  {
@@ -34,9 +63,9 @@ func GetHandlers(storer SensorStorer) (getter Handler, setter Handler) {
 			return
 		}
 
-		successs := storer.StoreReadings(readings)
+		success := storer.StoreReadings(readings)
 
-		if !successs {
+		if !success {
 			msg := "Unable to write to database"
 			http.Error(w, msg, http.StatusInternalServerError)
 		} else {

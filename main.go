@@ -17,7 +17,7 @@ func main() {
 	readingGetter, readingSetter := sensor.GetHandlers(&datastore)
 
 	http.HandleFunc("/readings/store", readingSetter)
-	http.HandleFunc("/readings/{start}/to/{end}", readingGetter)
+	http.HandleFunc("/readings", readingGetter)
 
 	// Determine port for HTTP service.
 	port := os.Getenv("PORT")

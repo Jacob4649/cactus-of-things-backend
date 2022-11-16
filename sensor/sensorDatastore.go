@@ -31,8 +31,52 @@ type SensorDatastoreReading struct {
 	Expiry time.Time `datastore:"expiry,noindex"`
 }
 
+// Sets up client for sensor datastore
+func (store *SensorDatastore) initializeClient() (*datastore.Client, error) {
+	context := context.Background()
+
+	var client *datastore.Client = store.client
+	var err error = nil
+
+	if client == nil {
+		client, err = datastore.NewClient(context, store.ProjectID)
+	}
+
+	return client, err
+}
+
 func (store *SensorDatastore) GetReadings(start time.Time, end time.Time) []*SensorReading {
-	return []*SensorReading{}
+	if start == end || end.Before(start) {
+		return []*SensorReading{} // early return on invalid intervals
+	}
+
+	context := context.Background()
+
+	client, err := store.initializeClient()
+
+	if err != nil {
+		return nil
+	}
+
+	kind := "cactus-sensor-reading"
+
+	query := datastore.NewQuery(kind).FilterField("date", ">=", start).FilterField("date", "<=", end)
+	
+	datastoreReadings := []*SensorDatastoreReading{}
+
+	_, err = client.GetAll(context, query, &datastoreReadings)
+
+	if err != nil {
+		return nil
+	}
+
+	readings := []*SensorReading{}
+
+	for _, reading := range datastoreReadings {
+		readings = append(readings, &SensorReading{Date: reading.Date, Moisture: reading.Moisture})
+	}
+
+	return readings
 }
 
 func (store *SensorDatastore) StoreReadings(readings []*SensorReading) bool {
@@ -43,12 +87,7 @@ func (store *SensorDatastore) StoreReadings(readings []*SensorReading) bool {
 
 	context := context.Background()
 
-	var client *datastore.Client = store.client
-	var err error = nil
-
-	if client == nil {
-		client, err = datastore.NewClient(context, store.ProjectID)
-	}
+	client, err := store.initializeClient()
 
 	if err != nil {
 		return false
