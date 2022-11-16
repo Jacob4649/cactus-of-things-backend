@@ -63,6 +63,8 @@ func GetHandlers(storer SensorStorer) (getter Handler, setter Handler) {
 			return
 		}
 
+		setDates(&readings)
+
 		success := storer.StoreReadings(readings)
 
 		if !success {
@@ -74,4 +76,12 @@ func GetHandlers(storer SensorStorer) (getter Handler, setter Handler) {
 	}
 
 	return getHandler, setHandler
+}
+
+func setDates(readings *[]*SensorReading) {
+	for _, reading := range *readings {
+		if reading.Date.IsZero() {
+			reading.Date = time.Now()
+		}
+	}
 }
