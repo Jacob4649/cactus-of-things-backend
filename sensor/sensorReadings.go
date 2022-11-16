@@ -8,10 +8,10 @@ import (
 type SensorReading struct {
 
 	// The time this reading was taken
-	Date time.Time `datastore:"date"`
+	Date time.Time
 
 	// The moisture level of this reading
-	Moisture float64 `datastore:"moisture,noindex"`
+	Moisture float64
 }
 
 // Interface for storing sensor readings
