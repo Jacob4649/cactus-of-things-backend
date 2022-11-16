@@ -12,6 +12,9 @@ type SensorReading struct {
 
 	// The moisture level of this reading
 	Moisture float64
+
+	// The light level of this reading
+	Light float64
 }
 
 // Interface for storing sensor readings

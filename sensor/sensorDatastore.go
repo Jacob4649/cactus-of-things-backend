@@ -27,6 +27,9 @@ type SensorDatastoreReading struct {
 	// The moisture level of this reading
 	Moisture float64 `datastore:"moisture,noindex"`
 
+	// The light level of this reading
+	Light float64 `datastore:light,noindex`
+
 	// The expiry date for this reading
 	Expiry time.Time `datastore:"expiry,noindex"`
 }
@@ -104,6 +107,7 @@ func (store *SensorDatastore) StoreReadings(readings []*SensorReading) bool {
 	for _, reading := range readings {
 		keys = append(keys, datastore.IncompleteKey(kind, nil))
 		datastoreReadings = append(datastoreReadings, &SensorDatastoreReading{Moisture: reading.Moisture,
+			Light: reading.Light,
 			Date: reading.Date,
 			Expiry: reading.Date.Add(time.Hour * 24 * 30)})
 	}
