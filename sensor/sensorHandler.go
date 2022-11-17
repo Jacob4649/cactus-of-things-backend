@@ -42,6 +42,8 @@ func GetHandlers(storer SensorStorer) (getter Handler, setter Handler) {
 			return
 		}
 
+		w.Header().Add("Access-Control-Allow-Origin", "*");
+
 		json.NewEncoder(w).Encode(readings)
 	}
 
