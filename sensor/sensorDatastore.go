@@ -76,7 +76,7 @@ func (store *SensorDatastore) GetReadings(start time.Time, end time.Time) []*Sen
 	readings := []*SensorReading{}
 
 	for _, reading := range datastoreReadings {
-		readings = append(readings, &SensorReading{Date: reading.Date, Moisture: reading.Moisture})
+		readings = append(readings, &SensorReading{Date: reading.Date, Moisture: reading.Moisture, Light: reading.Light})
 	}
 
 	return readings
