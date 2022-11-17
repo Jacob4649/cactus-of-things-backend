@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -11,7 +10,6 @@ import (
 
 func main() {
 	log.Print("starting server...")
-	http.HandleFunc("/", handler)
 
 	datastore := sensor.SensorDatastore{ProjectID: "cactus-of-things"}
 	readingGetter, readingSetter := sensor.GetHandlers(&datastore)
@@ -31,12 +29,4 @@ func main() {
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func handler(w http.ResponseWriter, r *http.Request) {
-	name := os.Getenv("NAME")
-	if name == "" {
-		name = "World"
-	}
-	fmt.Fprintf(w, "Hello %s From Go!\n", name)
 }
