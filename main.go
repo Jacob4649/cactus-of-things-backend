@@ -13,9 +13,11 @@ func main() {
 
 	datastore := sensor.SensorDatastore{ProjectID: "cactus-of-things"}
 	readingGetter, readingSetter := sensor.GetHandlers(&datastore)
+	currentGetter := sensor.GetCurrentHandler(&datastore)
 
 	http.HandleFunc("/readings/store", readingSetter)
 	http.HandleFunc("/readings", readingGetter)
+	http.HandleFunc("/readings/current", currentGetter)
 
 	// Determine port for HTTP service.
 	port := os.Getenv("PORT")

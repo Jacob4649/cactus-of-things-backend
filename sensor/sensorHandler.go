@@ -10,6 +10,23 @@ import (
 // Handler function
 type Handler func(http.ResponseWriter, *http.Request)
 
+// Gets a handler to get the current sensor value
+func GetCurrentHandler(storer SensorStorer) Handler {
+	return func(w http.ResponseWriter, r *http.Request) {
+		reading := storer.GetCurrent()
+
+		if (reading == nil) {
+			msg := "Unable to read current sensor status"
+			http.Error(w, msg, http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Add("Access-Control-Allow-Origin", "*");
+
+		json.NewEncoder(w).Encode(reading)
+	}
+}
+
 // Gets handlers to read sensor values and write sensor values with this sensor storer
 func GetHandlers(storer SensorStorer) (getter Handler, setter Handler) {
 
