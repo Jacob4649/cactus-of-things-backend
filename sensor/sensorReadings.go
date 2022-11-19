@@ -26,4 +26,7 @@ type SensorStorer interface {
 	// Gets the specified readings in the specified timeframe
 	GetReadings(start time.Time, end time.Time) []*SensorReading
 
+	// Gets the most up to date sensor reading
+	GetCurrent() *SensorReading
+
 }

@@ -61,6 +61,8 @@ func (store *SensorDatastore) GetReadings(start time.Time, end time.Time) []*Sen
 		return nil
 	}
 
+	defer client.Close()
+
 	kind := "cactus-sensor-reading"
 
 	query := datastore.NewQuery(kind).FilterField("date", ">=", start).FilterField("date", "<=", end)
@@ -119,4 +121,33 @@ func (store *SensorDatastore) StoreReadings(readings []*SensorReading) bool {
 	keys, err = client.PutMulti(context, keys, datastoreReadings);
 
 	return err == nil
+}
+
+// Gets the current sensor reading or nil
+func (store *SensorDatastore) GetCurrent() *SensorReading {
+	context := context.Background()
+
+	client, err := store.initializeClient()
+
+	if err != nil {
+		return nil
+	}
+	
+	defer client.Close() // close the client after this function
+
+	kind := "cactus-sensor-reading"
+
+	query := datastore.NewQuery(kind).Limit(1).Order("-date")
+
+	datastoreReadings := []*SensorDatastoreReading{}
+
+	_, err = client.GetAll(context, query, &datastoreReadings)
+
+	if (err != nil || len(datastoreReadings) != 1) {
+		return nil
+	}
+
+	return &SensorReading{Date: datastoreReadings[0].Date, 
+		Moisture: datastoreReadings[0].Moisture, 
+		Light: datastoreReadings[0].Light}
 }
