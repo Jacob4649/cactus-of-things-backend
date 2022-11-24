@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -35,6 +36,8 @@ func GetHandlers(storer SensorStorer) (getter Handler, setter Handler) {
 		
 		startString, endString := parameters.Get("start"), parameters.Get("end")
 
+		resolutionString := parameters.Get("resolution")
+
 		if startString == "" || endString == "" {
 			msg := "Must specify start and end query strings in URL parameters"
 			http.Error(w, msg, http.StatusBadRequest)
@@ -51,12 +54,45 @@ func GetHandlers(storer SensorStorer) (getter Handler, setter Handler) {
 			return
 		}
 
+		hasResolution := resolutionString != ""
+		var resolution int = -1
+		var resolutionErr error = nil
+
+		if hasResolution {
+			resolution, resolutionErr = strconv.Atoi(resolutionString)
+		}
+
+		if resolutionErr != nil || (hasResolution && resolution < 1) {
+			msg := "Resolution must be a valid, positive integer"
+			http.Error(w, msg, http.StatusBadRequest)
+			return
+		}
+
 		readings := storer.GetReadings(start, end)
 
 		if readings == nil {
 			msg := "Unable to read from database"
 			http.Error(w, msg, http.StatusInternalServerError)
 			return
+		}
+
+		if hasResolution {
+			resolutionedReadings := make([]*SensorReading, 0)
+			offset := len(readings) / resolution
+
+			if (offset < 1) {
+				offset = 1
+			}
+
+			for i := 0; i < resolution; i++ {
+				index := i * offset
+				if index >= len(readings) - 1 {
+					resolutionedReadings = append(resolutionedReadings, readings[len(readings) -1])
+					break
+				}
+				resolutionedReadings = append(resolutionedReadings, readings[index])
+			}	
+			readings = resolutionedReadings
 		}
 
 		w.Header().Add("Access-Control-Allow-Origin", "*");
