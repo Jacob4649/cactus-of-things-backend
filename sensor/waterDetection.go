@@ -5,7 +5,7 @@ import "math"
 // Gets the mean and standard deviation of a set of sensor readings
 func getMeanSD(readings []*SensorReading) (float64, float64) {
 	mean := 0.0
-	sd := 0.0
+	variance := 0.0
 	length := len(readings)
 
 	for _, reading := range readings {
@@ -13,10 +13,10 @@ func getMeanSD(readings []*SensorReading) (float64, float64) {
 	}
 
 	for _, reading := range readings {
-		sd += math.Pow(reading.Moisture - mean, 2) / float64(length)
+		variance += math.Pow(reading.Moisture - mean, 2) / float64(length)
 	}
 
-	return mean, sd
+	return mean, math.Sqrt(variance)
 }
 
 // Assumes that readings are normally distributed around a sample value, and gets the z score corresponding to a reading
